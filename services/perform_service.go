@@ -75,8 +75,8 @@ func httpTest(h config.HTTPRequest, httpClient utils.HTTPClient, currentMetricsC
 		log.Print("Unable to convert payload to bytes : ", err.Error())
 	}
 	payload := bytes.NewReader(payloadBytes)
-	response, responseTimeInMillSeconds, err := httpClient.SendMessage(h.Method, h.URLWithEndpoint, h.QueryParams, h.Headers, payload)
-	currentMetric.ResponseTime = responseTimeInMillSeconds
+	response, responseTimeInMillieconds, err := httpClient.SendRequest(h.Method, h.URLWithEndpoint, h.QueryParams, h.Headers, payload)
+	currentMetric.ResponseTime = responseTimeInMilliSeconds
 	if err != nil {
 		log.Print("Error making a HTTP request : ", err.Error())
 	}

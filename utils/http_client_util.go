@@ -18,7 +18,7 @@ type HTTPClient struct {
 // HTTPClientMethods contains the method definations
 type HTTPClientMethods interface {
 	Initialise()
-	SendMessage(string, string, map[string]string, map[string]string, io.Reader) (*http.Response, error)
+	SendRequest(string, string, map[string]string, map[string]string, io.Reader) (*http.Response, error)
 }
 
 // Initialise method to initialise the httpClient from main
@@ -26,8 +26,8 @@ func (i *HTTPClient) Initialise() {
 	i.httpClient = &http.Client{}
 }
 
-// SendMessage method to make an http call and capture the http metrics
-func (i *HTTPClient) SendMessage(method string, url string, queryParams map[string]string, headers map[string]string, body io.Reader) (resp *http.Response, responseTimeInMilliSeconds int64, err error) {
+// SendRequest method to make an http call and capture the http metrics
+func (i *HTTPClient) SendRequest(method string, url string, queryParams map[string]string, headers map[string]string, body io.Reader) (resp *http.Response, responseTimeInMilliSeconds int64, err error) {
 	var resultMetrics httpstat.Result
 	req, err := http.NewRequest(method, url, body)
 	ctx := httpstat.WithHTTPStat(req.Context(), &resultMetrics)
