@@ -76,7 +76,7 @@ func httpTest(h config.HTTPRequest, httpClient utils.HTTPClient, currentMetricsC
 	}
 	payload := bytes.NewReader(payloadBytes)
 	response, responseTimeInMillieconds, err := httpClient.SendRequest(h.Method, h.URLWithEndpoint, h.QueryParams, h.Headers, payload)
-	currentMetric.ResponseTime = responseTimeInMilliSeconds
+	currentMetric.ResponseTime = responseTimeInMillieconds
 	if err != nil {
 		log.Print("Error making a HTTP request : ", err.Error())
 	}
