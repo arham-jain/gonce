@@ -3,12 +3,15 @@ package services
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/gonce/config"
 	"github.com/gonce/models"
 	"github.com/gonce/utils"
+	"github.com/olekukonko/tablewriter"
 )
 
 // PerformService struct to aggregate the metrics data and PerformServiceMethods
@@ -21,6 +24,7 @@ type PerformService struct {
 type PerformServiceMethods interface {
 	Perform(config.ConditionConfig, utils.HTTPClient)
 	processCurrentMetric(models.CurrentMetrics)
+	CreateTable()
 }
 
 // Perform method contains the core performance test logic
@@ -40,7 +44,7 @@ func (i *PerformService) Perform(c config.ConditionConfig, httpClient utils.HTTP
 			log.Print("Execution completed")
 			return
 		case threadStart := <-ch:
-			log.Println("Thread number %d spawned", threadStart)
+			log.Printf("Thread number %d spawned", threadStart)
 			go func() {
 				for {
 					httpTest(c.HTTPRequest, httpClient, currentMetricsCh)
@@ -62,7 +66,7 @@ func rampUpThreads(c config.ConditionConfig, ch chan<- int64) {
 	waitTime := c.RampUpTimeInSeconds / c.Threads
 	var i int64
 	for i = 0; i < c.Threads; i++ {
-		log.Printf("Thread count : %d", i)
+		// log.Printf("Thread count : %d", i)
 		ch <- i
 		time.Sleep(time.Duration(waitTime) * time.Second)
 	}
@@ -82,7 +86,7 @@ func httpTest(h config.HTTPRequest, httpClient utils.HTTPClient, currentMetricsC
 	}
 	val, ok := h.SuccessStatusCodes[response.StatusCode]
 	if val == true && ok {
-		log.Print("Success : ", response.Body)
+		// log.Print("Success : ", response.Body)
 		currentMetric.Error = false
 		currentMetricsCh <- currentMetric
 		return
@@ -101,4 +105,18 @@ func (i *PerformService) processCurrentMetric(c models.CurrentMetrics) {
 	if c.Error == true {
 		i.Metrics.ErrorCount++
 	}
+}
+
+// CreateTable to render a result table
+func (i *PerformService) CreateTable() {
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"Avg Response Time", "Peak Response Time", "Total Requests", "Error Count"})
+	table.SetBorder(true)
+	table.SetHeaderColor(tablewriter.Colors{tablewriter.Bold, tablewriter.BgGreenColor},
+		tablewriter.Colors{tablewriter.Bold, tablewriter.BgBlueColor},
+		tablewriter.Colors{tablewriter.Bold, tablewriter.BgBlackColor},
+		tablewriter.Colors{tablewriter.BgCyanColor, tablewriter.BgRedColor})
+	table.Append([]string{fmt.Sprintf("%d ms", i.Metrics.AverageResponseTime), fmt.Sprintf("%d ms", i.Metrics.PeakResponseTime), fmt.Sprintf("%d", i.Metrics.TotalRequests), fmt.Sprintf("%d", i.Metrics.ErrorCount)})
+	table.Render()
+	return
 }

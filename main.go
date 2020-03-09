@@ -28,8 +28,7 @@ func init() {
 func main() {
 	log.Println(d.ConditionConfig)
 	d.PerformService.Perform(d.ConditionConfig, d.HTTPClient)
-	byteResult, _ := json.Marshal(d.PerformService.Metrics)
-	log.Println(string(byteResult))
+	d.PerformService.CreateTable()
 }
 
 func initConfig() {
