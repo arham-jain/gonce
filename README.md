@@ -13,7 +13,7 @@ A performance testing tool written in GoLang. Supports performance testing of HT
 The go application can be installed using:
 ```go get github.com/arham-jain/gonce```
 
-Alternatively, the binary of the above can be downloaded here.
+Alternatively, the binary of the above can be downloaded [here](https://drive.google.com/open?id=1v_uqKNhKkB3YinCHgvTpSEnuyhG6Tl0j).
 
 ## Usage
 
